@@ -1,0 +1,576 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string>com.lizq.alfred.hfm</string>
+	<key>category</key>
+	<string>Tools</string>
+	<key>connections</key>
+	<dict>
+		<key>1CD97C3A-C7CC-4915-AD56-E2F62272BBA0</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>B3CD4351-C167-4D8B-A8DC-2947D5B3883F</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>2A093DD6-850A-4585-BEDA-330E6DD257DA</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>73A17616-E420-4EC4-BDA2-0D1AEC60B8BD</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>45208A99-B134-4052-9E24-59CE453455B7</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>1CD97C3A-C7CC-4915-AD56-E2F62272BBA0</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>FADA7B15-7EF1-4F23-B670-A8C39DBDEAD2</string>
+				<key>modifiers</key>
+				<integer>1048576</integer>
+				<key>modifiersubtext</key>
+				<string>Toggle entry</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>2A093DD6-850A-4585-BEDA-330E6DD257DA</string>
+				<key>modifiers</key>
+				<integer>524288</integer>
+				<key>modifiersubtext</key>
+				<string>Remove entry</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>B3CD4351-C167-4D8B-A8DC-2947D5B3883F</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>A70A4E1E-712E-4575-967A-0AA64960904D</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>84E00FF8-0609-4E6F-8CB7-D23067E11F49</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>FADA7B15-7EF1-4F23-B670-A8C39DBDEAD2</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>3276FDB7-5C00-416D-B3F8-FAF66252A70C</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+	</dict>
+	<key>createdby</key>
+	<string>Ziqiang Li</string>
+	<key>description</key>
+	<string>Use this workflow to manage your hosts file</string>
+	<key>disabled</key>
+	<false/>
+	<key>name</key>
+	<string>Hosts File Manager</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<true/>
+				<key>removeextension</key>
+				<false/>
+				<key>text</key>
+				<string>{var:split2}</string>
+				<key>title</key>
+				<string>Hosts: Entry {var:split1}</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>A70A4E1E-712E-4575-967A-0AA64960904D</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>applescript</key>
+				<string>on alfred_script(q)
+  set hostsFile to "/private/etc/hosts"
+
+  try
+    if q is equal to "" then
+      return "Error: No input received"
+    end if
+
+    set cmdArray to my split(q, " ")
+    set entryCommand to first item of cmdArray
+
+    if entryCommand is equal to "add" then
+      if count of cmdArray is greater than or equal to 3 then
+        set entryIp to second item of cmdArray
+        set entryHost to third item of cmdArray
+        set hostItem to entryIp &amp; " " &amp; entryHost
+        set shellCmd to "echo " &amp; hostItem &amp; " &gt;&gt; " &amp; hostsFile
+        do shell script shellCmd with administrator privileges
+        return "added," &amp; hostItem
+      else
+        return "Error: You need to specify both IP address and host name"
+      end if
+	else
+		set hostItem to do shell script "sed -n '" &amp; q &amp; "p' " &amp; hostsFile
+		return "copied," &amp; hostItem
+    end if
+
+  on error errMsg number errNo
+    return "Error: " &amp; errMsg
+  end try
+
+end alfred_script
+
+to split(someText, delimiter)
+  set AppleScript's text item delimiters to delimiter
+  set someText to someText's text items
+  set AppleScript's text item delimiters to {""}
+  return someText
+end split</string>
+				<key>cachescript</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.applescript</string>
+			<key>uid</key>
+			<string>1CD97C3A-C7CC-4915-AD56-E2F62272BBA0</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>delimiter</key>
+				<string>,</string>
+				<key>trimarguments</key>
+				<true/>
+				<key>variableprefix</key>
+				<string>split</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.utility.split</string>
+			<key>uid</key>
+			<string>B3CD4351-C167-4D8B-A8DC-2947D5B3883F</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>autopaste</key>
+				<false/>
+				<key>clipboardtext</key>
+				<string>{var:split2}</string>
+				<key>transient</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.clipboard</string>
+			<key>uid</key>
+			<string>84E00FF8-0609-4E6F-8CB7-D23067E11F49</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<true/>
+				<key>removeextension</key>
+				<false/>
+				<key>text</key>
+				<string>{query}</string>
+				<key>title</key>
+				<string>Hosts: Toggled Entry</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>3276FDB7-5C00-416D-B3F8-FAF66252A70C</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>applescript</key>
+				<string>on alfred_script(q)
+  set hostsFile to "/private/etc/hosts"
+
+  try
+    if q is equal to "" then
+      return "Error: No input received"
+    end if
+
+	set hostItem to do shell script "sed -n '" &amp; q &amp; "p' " &amp; hostsFile
+
+	if hostItem begins with "#" then
+		set shellCmd to "sed -i\".bak\" '" &amp; q &amp; "s/^#//' " &amp; hostsFile
+	else
+		set shellCmd to "sed -i\".bak\" '" &amp; q &amp; "s/^/#&amp;/' " &amp; hostsFile
+	end if
+    do shell script shellCmd with administrator privileges
+    return "Toggled hosts entry"
+
+  on error errMsg number errNo
+    return "Error: " &amp; errMsg
+  end try
+
+  return "Error: Command not supported!"
+end alfred_script</string>
+				<key>cachescript</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.applescript</string>
+			<key>uid</key>
+			<string>FADA7B15-7EF1-4F23-B670-A8C39DBDEAD2</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<false/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>keyword</key>
+				<string>hosts</string>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<true/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string>Loading hosts entries...</string>
+				<key>script</key>
+				<string>HOSTS=/private/etc/hosts
+HOST_LINE="^#.*"
+HOST_IPV4="([0-9]{1,3}.){3}[0-9]{1,3}.*"
+# 默认不显示localhost对应的host
+HOST_SKIP="^\s*(127\.0\.0\.1|255\.255\.255\.255).*"
+QUERY="{query}"
+
+echo '&lt;?xml version="1.0"?&gt;&lt;items&gt;'
+echo ''
+
+if [[ $QUERY == "" ]]; then
+	# echo "&lt;item valid=\"no\" autocomplete=\"127.0.0.1 localhost\"&gt;"
+	# echo "&lt;title&gt;Add entry&lt;/title&gt;"
+	# echo "&lt;subtitle&gt;To add an entry select this option or start typing&lt;/subtitle&gt;"
+	# echo "&lt;subtitle mod=\"cmd\"&gt;&lt;/subtitle&gt;"
+	# echo "&lt;/item&gt;"
+	
+	counter=1
+	while read entry; do
+		if [[ ! $entry == "" ]] &amp;&amp; [[ ! $entry =~ $HOST_SKIP ]] &amp;&amp; [[ $entry =~ $HOST_IPV4 ]]; then
+            # 标记是否已#开头
+            [[ $entry =~ $HOST_LINE ]] &amp;&amp; hash="#" || hash=""
+
+			entryIp=$(echo $entry | awk -F " " '{print $(NF - 1)}')
+            # 如果IP没有包含#，则根据原始host是否以#开头#来增加#
+			if [[ ! $entryIp =~ $HOST_LINE ]]; then
+				entryIp=$hash$entryIp
+			fi
+
+			entryHost=$(echo $entry | awk -F " " '{print $NF}')
+			echo "&lt;item arg=\"$counter\"&gt;"
+			echo "&lt;title&gt;$entryHost&lt;/title&gt;"
+			echo "&lt;subtitle&gt;$entryIp&lt;/subtitle&gt;"
+			echo "&lt;/item&gt;"
+		fi
+		(( counter += 1 ))
+	done &lt; $HOSTS
+else
+	TMP_CMD_COUNT=$(wc -w &lt;&lt;&lt; "$QUERY")
+	TMP_TITLE="Add $QUERY to hosts file"
+	TMP_SUBTITLE=""
+	TMP_VALID="yes"
+	if [[ TMP_CMD_COUNT -lt 2 ]]; then
+		TMP_SUBTITLE="You need to type both an IP address and a hostname"
+		TMP_VALID="no"
+	fi
+	echo "&lt;item arg=\"add $QUERY\" valid=\"$TMP_VALID\"&gt;"
+	echo "&lt;title&gt;Add \"$QUERY\" to hosts file&lt;/title&gt;"
+	if [[ ! $TMP_SUBTITLE == "" ]]; then
+		echo "&lt;subtitle&gt;$TMP_SUBTITLE&lt;/subtitle&gt;"
+	fi
+	echo "&lt;/item&gt;"
+fi
+
+echo "&lt;/items&gt;"
+HOSTS=/private/etc/hosts
+HOST_LINE="^#.*"
+HOST_IPV4="([0-9]{1,3}.){3}[0-9]{1,3}.*"
+# 默认不显示localhost对应的host
+HOST_SKIP="^\s*(127\.0\.0\.1|255\.255\.255\.255).*"
+QUERY="{query}"
+
+echo '&lt;?xml version="1.0"?&gt;&lt;items&gt;'
+echo ''
+
+if [[ $QUERY == "" ]]; then
+	# echo "&lt;item valid=\"no\" autocomplete=\"127.0.0.1 localhost\"&gt;"
+	# echo "&lt;title&gt;Add entry&lt;/title&gt;"
+	# echo "&lt;subtitle&gt;To add an entry select this option or start typing&lt;/subtitle&gt;"
+	# echo "&lt;subtitle mod=\"cmd\"&gt;&lt;/subtitle&gt;"
+	# echo "&lt;/item&gt;"
+	
+	counter=1
+	while read entry; do
+		if [[ ! $entry == "" ]] &amp;&amp; [[ ! $entry =~ $HOST_SKIP ]] &amp;&amp; [[ $entry =~ $HOST_IPV4 ]]; then
+            # 标记是否已#开头
+            [[ $entry =~ $HOST_LINE ]] &amp;&amp; hash="#" || hash=""
+
+			entryIp=$(echo $entry | awk -F " " '{print $(NF - 1)}')
+            # 如果IP没有包含#，则根据原始host是否以#开头#来增加#
+			if [[ ! $entryIp =~ $HOST_LINE ]]; then
+				entryIp=$hash$entryIp
+			fi
+
+			entryHost=$(echo $entry | awk -F " " '{print $NF}')
+			echo "&lt;item arg=\"$counter\"&gt;"
+			echo "&lt;title&gt;$entryHost&lt;/title&gt;"
+			echo "&lt;subtitle&gt;$entryIp&lt;/subtitle&gt;"
+			echo "&lt;/item&gt;"
+		fi
+		(( counter += 1 ))
+	done &lt; $HOSTS
+else
+	TMP_CMD_COUNT=$(wc -w &lt;&lt;&lt; "$QUERY")
+	TMP_TITLE="Add $QUERY to hosts file"
+	TMP_SUBTITLE=""
+	TMP_VALID="yes"
+	if [[ TMP_CMD_COUNT -lt 2 ]]; then
+		TMP_SUBTITLE="You need to type both an IP address and a hostname"
+		TMP_VALID="no"
+	fi
+	echo "&lt;item arg=\"add $QUERY\" valid=\"$TMP_VALID\"&gt;"
+	echo "&lt;title&gt;Add \"$QUERY\" to hosts file&lt;/title&gt;"
+	if [[ ! $TMP_SUBTITLE == "" ]]; then
+		echo "&lt;subtitle&gt;$TMP_SUBTITLE&lt;/subtitle&gt;"
+	fi
+	echo "&lt;/item&gt;"
+fi
+
+echo "&lt;/items&gt;"
+</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>subtext</key>
+				<string>View and manage your hosts file</string>
+				<key>title</key>
+				<string>Hosts File Manager</string>
+				<key>type</key>
+				<integer>0</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>45208A99-B134-4052-9E24-59CE453455B7</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<true/>
+				<key>removeextension</key>
+				<false/>
+				<key>text</key>
+				<string>{query}</string>
+				<key>title</key>
+				<string>Hosts: Entry removed</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>73A17616-E420-4EC4-BDA2-0D1AEC60B8BD</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>applescript</key>
+				<string>on alfred_script(q)
+  set hostsFile to "/private/etc/hosts"
+
+  try
+    if q is equal to "" then
+      return "Error: No input received"
+    end if
+
+	set hostItem to do shell script "sed -n '" &amp; q &amp; "p' " &amp; hostsFile
+
+    set shellCmd to "sed -i\".bak\" '" &amp; q &amp; "d' " &amp; hostsFile
+    do shell script shellCmd with administrator privileges
+    return hostItem
+
+  on error errMsg number errNo
+    return "Error: " &amp; errMsg
+  end try
+
+  return "Error: Command not supported!"
+end alfred_script</string>
+				<key>cachescript</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.applescript</string>
+			<key>uid</key>
+			<string>2A093DD6-850A-4585-BEDA-330E6DD257DA</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string>Manage your hosts file with simple actions to add, remove or toggle entries.
+
+To remove an entry, simply just use the modifier (default: ctrl) when clicking on an entry.
+
+To toggle an entry, simply just use the modifier (default: cmd) when clicking on an entry.</string>
+	<key>uidata</key>
+	<dict>
+		<key>1CD97C3A-C7CC-4915-AD56-E2F62272BBA0</key>
+		<dict>
+			<key>xpos</key>
+			<integer>280</integer>
+			<key>ypos</key>
+			<integer>65</integer>
+		</dict>
+		<key>2A093DD6-850A-4585-BEDA-330E6DD257DA</key>
+		<dict>
+			<key>xpos</key>
+			<integer>280</integer>
+			<key>ypos</key>
+			<integer>445</integer>
+		</dict>
+		<key>3276FDB7-5C00-416D-B3F8-FAF66252A70C</key>
+		<dict>
+			<key>xpos</key>
+			<integer>445</integer>
+			<key>ypos</key>
+			<integer>260</integer>
+		</dict>
+		<key>45208A99-B134-4052-9E24-59CE453455B7</key>
+		<dict>
+			<key>xpos</key>
+			<integer>65</integer>
+			<key>ypos</key>
+			<integer>260</integer>
+		</dict>
+		<key>73A17616-E420-4EC4-BDA2-0D1AEC60B8BD</key>
+		<dict>
+			<key>xpos</key>
+			<integer>445</integer>
+			<key>ypos</key>
+			<integer>445</integer>
+		</dict>
+		<key>84E00FF8-0609-4E6F-8CB7-D23067E11F49</key>
+		<dict>
+			<key>xpos</key>
+			<integer>590</integer>
+			<key>ypos</key>
+			<integer>125</integer>
+		</dict>
+		<key>A70A4E1E-712E-4575-967A-0AA64960904D</key>
+		<dict>
+			<key>xpos</key>
+			<integer>590</integer>
+			<key>ypos</key>
+			<integer>10</integer>
+		</dict>
+		<key>B3CD4351-C167-4D8B-A8DC-2947D5B3883F</key>
+		<dict>
+			<key>xpos</key>
+			<integer>430</integer>
+			<key>ypos</key>
+			<integer>95</integer>
+		</dict>
+		<key>FADA7B15-7EF1-4F23-B670-A8C39DBDEAD2</key>
+		<dict>
+			<key>xpos</key>
+			<integer>280</integer>
+			<key>ypos</key>
+			<integer>260</integer>
+		</dict>
+	</dict>
+	<key>version</key>
+	<string>1.0.1</string>
+	<key>webaddress</key>
+	<string>https://github.com/liziqiang/alfred-hosts</string>
+</dict>
+</plist>
