@@ -212,6 +212,8 @@ end split</string>
 				<false/>
 				<key>clipboardtext</key>
 				<string>{var:split2}</string>
+				<key>ignoredynamicplaceholders</key>
+				<false/>
 				<key>transient</key>
 				<false/>
 			</dict>
@@ -320,16 +322,10 @@ echo '&lt;?xml version="1.0"?&gt;&lt;items&gt;'
 echo ''
 
 if [[ $QUERY == "" ]]; then
-	# echo "&lt;item valid=\"no\" autocomplete=\"127.0.0.1 localhost\"&gt;"
-	# echo "&lt;title&gt;Add entry&lt;/title&gt;"
-	# echo "&lt;subtitle&gt;To add an entry select this option or start typing&lt;/subtitle&gt;"
-	# echo "&lt;subtitle mod=\"cmd\"&gt;&lt;/subtitle&gt;"
-	# echo "&lt;/item&gt;"
-	
 	counter=1
 	while read entry; do
 		if [[ ! $entry == "" ]] &amp;&amp; [[ ! $entry =~ $HOST_SKIP ]] &amp;&amp; [[ $entry =~ $HOST_IPV4 ]]; then
-            # 标记是否已#开头
+            # 标记是否以#开头
             [[ $entry =~ $HOST_LINE ]] &amp;&amp; hash="#" || hash=""
 
 			entryIp=$(echo $entry | awk -F " " '{print $(NF - 1)}')
@@ -347,71 +343,17 @@ if [[ $QUERY == "" ]]; then
 		(( counter += 1 ))
 	done &lt; $HOSTS
 else
-	TMP_CMD_COUNT=$(wc -w &lt;&lt;&lt; "$QUERY")
-	TMP_TITLE="Add $QUERY to hosts file"
+    TMP_QUERY=$(echo $QUERY | sed -e 's/[ ][ ]*/ /g')
+	TMP_CMD_COUNT=$(wc -w &lt;&lt;&lt; "$TMP_QUERY")
+	TMP_TITLE="Add $TMP_QUERY to hosts file"
 	TMP_SUBTITLE=""
 	TMP_VALID="yes"
 	if [[ TMP_CMD_COUNT -lt 2 ]]; then
 		TMP_SUBTITLE="You need to type both an IP address and a hostname"
 		TMP_VALID="no"
 	fi
-	echo "&lt;item arg=\"add $QUERY\" valid=\"$TMP_VALID\"&gt;"
-	echo "&lt;title&gt;Add \"$QUERY\" to hosts file&lt;/title&gt;"
-	if [[ ! $TMP_SUBTITLE == "" ]]; then
-		echo "&lt;subtitle&gt;$TMP_SUBTITLE&lt;/subtitle&gt;"
-	fi
-	echo "&lt;/item&gt;"
-fi
-
-echo "&lt;/items&gt;"
-HOSTS=/private/etc/hosts
-HOST_LINE="^#.*"
-HOST_IPV4="([0-9]{1,3}.){3}[0-9]{1,3}.*"
-# 默认不显示localhost对应的host
-HOST_SKIP="^\s*(127\.0\.0\.1|255\.255\.255\.255).*"
-QUERY="{query}"
-
-echo '&lt;?xml version="1.0"?&gt;&lt;items&gt;'
-echo ''
-
-if [[ $QUERY == "" ]]; then
-	# echo "&lt;item valid=\"no\" autocomplete=\"127.0.0.1 localhost\"&gt;"
-	# echo "&lt;title&gt;Add entry&lt;/title&gt;"
-	# echo "&lt;subtitle&gt;To add an entry select this option or start typing&lt;/subtitle&gt;"
-	# echo "&lt;subtitle mod=\"cmd\"&gt;&lt;/subtitle&gt;"
-	# echo "&lt;/item&gt;"
-	
-	counter=1
-	while read entry; do
-		if [[ ! $entry == "" ]] &amp;&amp; [[ ! $entry =~ $HOST_SKIP ]] &amp;&amp; [[ $entry =~ $HOST_IPV4 ]]; then
-            # 标记是否已#开头
-            [[ $entry =~ $HOST_LINE ]] &amp;&amp; hash="#" || hash=""
-
-			entryIp=$(echo $entry | awk -F " " '{print $(NF - 1)}')
-            # 如果IP没有包含#，则根据原始host是否以#开头#来增加#
-			if [[ ! $entryIp =~ $HOST_LINE ]]; then
-				entryIp=$hash$entryIp
-			fi
-
-			entryHost=$(echo $entry | awk -F " " '{print $NF}')
-			echo "&lt;item arg=\"$counter\"&gt;"
-			echo "&lt;title&gt;$entryHost&lt;/title&gt;"
-			echo "&lt;subtitle&gt;$entryIp&lt;/subtitle&gt;"
-			echo "&lt;/item&gt;"
-		fi
-		(( counter += 1 ))
-	done &lt; $HOSTS
-else
-	TMP_CMD_COUNT=$(wc -w &lt;&lt;&lt; "$QUERY")
-	TMP_TITLE="Add $QUERY to hosts file"
-	TMP_SUBTITLE=""
-	TMP_VALID="yes"
-	if [[ TMP_CMD_COUNT -lt 2 ]]; then
-		TMP_SUBTITLE="You need to type both an IP address and a hostname"
-		TMP_VALID="no"
-	fi
-	echo "&lt;item arg=\"add $QUERY\" valid=\"$TMP_VALID\"&gt;"
-	echo "&lt;title&gt;Add \"$QUERY\" to hosts file&lt;/title&gt;"
+	echo "&lt;item arg=\"add $TMP_QUERY\" valid=\"$TMP_VALID\"&gt;"
+	echo "&lt;title&gt;Add \"$TMP_QUERY\" to hosts file&lt;/title&gt;"
 	if [[ ! $TMP_SUBTITLE == "" ]]; then
 		echo "&lt;subtitle&gt;$TMP_SUBTITLE&lt;/subtitle&gt;"
 	fi
@@ -568,8 +510,10 @@ To toggle an entry, simply just use the modifier (default: cmd) when clicking on
 			<integer>260</integer>
 		</dict>
 	</dict>
+	<key>variablesdontexport</key>
+	<array/>
 	<key>version</key>
-	<string>1.0.1</string>
+	<string>1.0.2</string>
 	<key>webaddress</key>
 	<string>https://github.com/liziqiang/alfred-hosts</string>
 </dict>
